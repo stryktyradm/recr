@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+
+  # nginx service
+  web:
+    container_name: "web_server"
+    image: nginx:alpine
+    depends_on:
+      - app
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - custom
+
+  # application service
+  app:
+    container_name: "fastapi_app"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app:app --host 0.0.0.0
+    volumes:
+      - .:/fastapi_app
+    ports:
+      - 8000:8000
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge

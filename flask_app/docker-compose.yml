@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+
+  # nginx service
+  web:
+    container_name: "web_server"
+    image: nginx:alpine
+    depends_on:
+      - app
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - custom
+
+  # application service
+  app:
+    container_name: "flask_app"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn -w 2 --bind 0.0.0.0:5000 flasky:app
+    environment:
+      - FLASK_APP=flasky.py
+    volumes:
+      - .:/flask_app
+    ports:
+      - 5000:5000
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge
